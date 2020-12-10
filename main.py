@@ -134,7 +134,10 @@ assert len(sys.argv) == 3
 DATA_DIR = sys.argv[1]
 img_path = sys.argv[2]
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '~/key.json'
+print('Initializing models...')
+word_embeddings.init(DATA_DIR)
+
+# os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '~/key.json'
 
 print('Recognizing image...')
 QUESTIONS = ocr.recognize(img_path)

@@ -1,0 +1,9 @@
+numpy
+pandas
+scikit-learn
+opencv-python
+google-cloud-vision
+torch
+transformers
+pymorphy2
+gensim

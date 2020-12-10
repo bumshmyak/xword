@@ -1,3 +1,4 @@
+import os
 import pymorphy2
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
@@ -5,9 +6,9 @@ import gensim
 
 MORPH = pymorphy2.MorphAnalyzer()
 
-RUSVECTORES_MODEL = gensim.models.KeyedVectors.load_word2vec_format(
-  'data/tayga_upos_skipgram_300_2_2019.bin', binary=True)
-RUSVECTORES_MODEL.init_sims(replace=True)
+# call init(data_dir) to init the model
+RUSVECTORES_MODEL = None
+RUSVECTORES_MODEL_WRAPPER = None
 
 
 def normalize(token, append_pos=True, only_nouns=False):
@@ -64,9 +65,17 @@ def get_mean_emb_scoring_fn(model, words, q, token_normalizer_fn=None):
   return cosine_similarity(word_embeds, q_emb)[:,0]
 
 
-normalizer_fn = lambda token: normalize(token, append_pos=True, only_nouns=True)
-RUSVECTORES_MODEL_WRAPPER = EmbeddingModelWrapper(
-    RUSVECTORES_MODEL, RUSVECTORES_MODEL.vector_size, tokenize, normalizer_fn)
+def init(data_dir):
+  global RUSVECTORES_MODEL
+  global RUSVECTORES_MODEL_WRAPPER
+
+  RUSVECTORES_MODEL = gensim.models.KeyedVectors.load_word2vec_format(
+    os.path.join(data_dir, 'tayga_upos_skipgram_300_2_2019.bin'), binary=True)
+  RUSVECTORES_MODEL.init_sims(replace=True)  
+
+  normalizer_fn = lambda token: normalize(token, append_pos=True, only_nouns=True)
+  RUSVECTORES_MODEL_WRAPPER = EmbeddingModelWrapper(
+      RUSVECTORES_MODEL, RUSVECTORES_MODEL.vector_size, tokenize, normalizer_fn)
 
 def get_rusvectores_emb_scoring_fn(words, q):
   return get_mean_emb_scoring_fn(
